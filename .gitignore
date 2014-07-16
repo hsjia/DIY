@@ -1,0 +1,9 @@
+#file
+/Lis/
+/Obj/
+
+############
+*.txt
+*.ini
+*.dep
+*.bak
