@@ -13,7 +13,6 @@ int main(void){
 	nvic_init();
 	dma_init();
 	
-	//printf("usart1 is ok\r\n");
 	while(1){
 		if((obd_mode != 0xff) && (obd_pid != 0xff)){
 			obd_cmd_parse(obd_mode, obd_pid);

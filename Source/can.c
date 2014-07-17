@@ -47,6 +47,11 @@ void can1_init(void){
 	
 	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);	//CAN1 INT ENABLE
 	
+	TxMessage.StdId = 0x7df;
+	TxMessage.RTR = CAN_RTR_DATA;
+	TxMessage.IDE = CAN_ID_STD;
+	TxMessage.DLC = 0;
+	
 	printf("CAN INIT OK\r\n");
 	
 }
@@ -79,7 +84,7 @@ static void can1_filter_config(void){		//CAN1 FILTER CONFIG
 	
 }
 
-void can1_transmit(u8 *pdata){
+void can1_transmit_str(u8 *pdata){
 	u8 i;
 	
 	TxMessage.StdId = 0x7df;
@@ -90,6 +95,23 @@ void can1_transmit(u8 *pdata){
 	TxMessage.Data[0] = sizeof(pdata) - 2;
 	for(i=0; i<TxMessage.Data[0]; i++){
 		TxMessage.Data[i] = *(pdata + i);
+	}
+	CAN_Transmit(CAN1, &TxMessage);
+	
+}
+
+void can1_transmit_buf(u8 *pdata, u8 num){
+	u8 i;
+	
+	TxMessage.StdId = 0x7df;
+//	TxMessage.ExtId = 0x00;
+	TxMessage.RTR = CAN_RTR_DATA;
+	TxMessage.IDE = CAN_ID_STD;
+	TxMessage.DLC = num + 1;
+	TxMessage.Data[0] = num;
+	for(i=0; i<TxMessage.Data[0]; i++){
+		TxMessage.Data[i] = *(pdata + i);
+		printf("%d", TxMessage.Data[i]);
 	}
 	CAN_Transmit(CAN1, &TxMessage);
 	

@@ -14,7 +14,7 @@ void USART1_IRQHandler(void){
 		USART1->DR;									//在多缓存里用USART_ClearFlag(USART1, USART_IT_TC);
 		DMA_Cmd(DMA1_Channel5, DISABLE);			//关闭DMA通道5（USART1_RX),方便对本次数据处理时不接收数据更新
 		usart1_rx_cnt = DMA_GetCurrDataCounter(DMA1_Channel5);		//DMA中断接收数据个数
-//		printf("%c %c %c", RxBuffer1[0], RxBuffer1[1], RxBuffer1[2]);	//打印到串口，测试数据是否正确
+
 		for(i=0; i<usart1_rx_cnt; i++){
 			if(usart1_rx_buf[i] != 0x55){
 				continue;
@@ -31,9 +31,19 @@ void USART1_IRQHandler(void){
 			}
 			obd_mode = usart1_rx_buf[i+2];
 			obd_pid = usart1_rx_buf[i+3];
-			printf("mode,pid = %02x,%02x", obd_mode, obd_pid);
+			printf("mode,pid = %02x,%02x\r\n", obd_mode, obd_pid);
+			
 			break;
 		}
+		TxMessage.StdId = 0x7df;
+		TxMessage.RTR = CAN_RTR_DATA;
+		TxMessage.IDE = CAN_ID_STD;
+		TxMessage.DLC = 3;
+		TxMessage.Data[0] = 0x02;
+		TxMessage.Data[1] = obd_mode;
+		TxMessage.Data[2] = obd_pid;
+		CAN_Transmit(CAN1, &TxMessage);
+		
 		DMA_SetCurrDataCounter(DMA1_Channel5, USART1_RX_BUF_SIZE);
 		DMA_Cmd(DMA1_Channel5, ENABLE);
 	}
